@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::collections::HashMap;
 
 pub fn solve() {
     let reg_nums = regex::bytes::Regex::new("\\d+").unwrap();
@@ -13,6 +14,7 @@ pub fn solve() {
 
     let mut nums = Vec::new();
     let mut syms = Vec::new();
+    let mut adj = HashMap::new();
 
     for (y, l) in g.iter().enumerate() {
         for c in reg_nums.find_iter(l) {
@@ -28,7 +30,7 @@ pub fn solve() {
         for s in l
             .iter()
             .enumerate()
-            .filter_map(|(p, c)| b"&*#%$-@=+/".contains(c).then_some(p))
+            .filter_map(|(p, c)| b"*".contains(c).then_some(p))
         {
             syms.push((s, y));
         }
@@ -41,18 +43,21 @@ pub fn solve() {
         let rx = (xs.end - 1).saturating_add(1);
         let ly = y.saturating_sub(1);
         let ry = y.saturating_add(1);
-        let found = syms
+        for s in syms
             .iter()
-            .find(|(x, y)| *x >= lx && *x <= rx && *y >= ly && *y <= ry);
-
-        println!("{n} at {xs:?} {y} {found:?}");
-
-        if found.is_some() {
-            sum += n;
+            .filter(|(x, y)| *x >= lx && *x <= rx && *y >= ly && *y <= ry)
+        {
+            adj.entry(s).or_insert_with(Vec::new).push(n);
         }
     }
 
-    // println!("{nums:?} {syms:?}");
+    println!("{:?}", adj);
+
+    let sum: usize = adj
+        .values()
+        .filter(|v| v.len() == 2)
+        .map(|v| v[0] * v[1])
+        .sum();
 
     println!("{sum}");
 }
