@@ -54,7 +54,7 @@ pub fn solve() {
             } else {
                 println!("0 game={game}, moves={moves:?}", game = game, moves = moves);
             }
-            r*g*b
+            r * g * b
         })
         .sum::<u32>();
     println!("r={r}");
