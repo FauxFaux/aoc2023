@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 pub fn solve() {
-    let m: u32 = include_str!("d04.txt")
+    let games = include_str!("d04.txt")
         .lines()
         .map(|l| {
             let (_, gs) = l.split_once(':').expect("colon");
@@ -9,14 +9,17 @@ pub fn solve() {
             let w = w.split_whitespace().collect_vec();
             let h = h.split_whitespace().collect_vec();
             let c = h.iter().filter(|&h| w.contains(h)).count();
-            if c == 0 {
-                0
-            } else {
-                2u32.pow((c - 1) as u32)
-            }
-            // (w, h)
+            c
         })
-        .sum();
+        .collect_vec();
 
-    println!("{m:?}");
+    let mut copies = vec![1u32; games.len()];
+
+    for (i, w) in games.iter().enumerate() {
+        for j in 0..*w {
+            copies[i + j + 1] += copies[i];
+        }
+    }
+
+    println!("{copies:?} {:?}", copies.iter().sum::<u32>());
 }
