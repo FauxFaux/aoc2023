@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub fn solve() {
     let mut input = include_str!("d08.txt").lines();
@@ -29,22 +29,45 @@ pub fn solve() {
     grid.shrink_to_fit();
 
     println!("{:?}", grid);
-    let mut i = 0usize;
-    let mut moves = moves.iter().cycle();
-    let mut here = grid.keys().filter(|k| k.ends_with('A')).collect_vec();
-    loop {
-        let m = moves.next().expect("move");
-        for here in here.iter_mut() {
-            let (l, r) = grid.get(*here).expect("here");
-            *here = if *m { r } else { l };
+    let mut nums = Vec::new();
+    for start in grid.keys().filter(|k| k.ends_with('A')).collect_vec() {
+        let mut moves = moves.iter().cycle().peekable();
+        let mut i = 0usize;
+        println!("start: {}", start);
+        let mut ends_seen = HashSet::new();
+        let mut here = start;
+        let mut poses = Vec::new();
+        loop {
+            let m = moves.next().expect("move");
+            let (l, r) = grid.get(here).expect("here");
+            here = if *m { r } else { l };
+            i += 1;
+            if here.ends_with('Z') {
+                println!("{i} {here} {ends_seen:?} {:?}", moves.peek());
+
+                poses.push(i);
+                if !ends_seen.insert((moves.peek().copied(), here)) {
+                    break;
+                }
+            }
         }
-        i += 1;
-        if i % (1024 * 1024) == 0 {
-            println!("{i} {:?}", here);
-        }
-        if here.iter().all(|k| k.ends_with('Z')) {
-            println!("found ZZZ in {} moves", i);
-            break;
-        }
+
+        assert_eq!(2, poses.len());
+        let (a, b) = (poses[0], poses[1]);
+        nums.push((a, b));
     }
+
+    println!("{nums:?}");
+    println!(
+        "{:?}",
+        nums.iter()
+            .map(|(a, b)| (*b as f64) / (*a as f64))
+            .collect_vec()
+    );
+
+    // oh, they're all perfect cycles; just LCM the 'a's
 }
+
+// LTA = (KLS, BFV)
+// BKZ = (BFV, KLS)
+// QGA = (CGR, SGM)
