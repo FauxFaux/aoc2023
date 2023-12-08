@@ -31,17 +31,21 @@ pub fn solve() {
     println!("{:?}", grid);
     let mut i = 0;
     let mut moves = moves.iter().cycle();
-    let mut here = "AAA";
+    let mut here = grid.keys().filter(|k| k.ends_with('A')).collect_vec();
     loop {
-        let (l, r) = grid.get(here).expect("here");
-        let m = moves.next().expect("move");
-        let next = if *m { r } else { l };
+        // println!("{:?}", here);
+        let mut next = here.clone();
+        for (here, next) in here.iter().zip(next.iter_mut()) {
+            let (l, r) = grid.get(*here).expect("here");
+            let m = moves.next().expect("move");
+            *next = if *m { r } else { l };
+        }
         here = next;
         i += 1;
         if i % 100_000 == 0 {
-            println!("{:?}", here);
+            println!("{i} {:?}", here);
         }
-        if here == "ZZZ" {
+        if here.iter().all(|k| k.ends_with('Z')) {
             println!("found ZZZ in {} moves", i);
             break;
         }
