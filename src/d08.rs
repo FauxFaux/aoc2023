@@ -29,20 +29,17 @@ pub fn solve() {
     grid.shrink_to_fit();
 
     println!("{:?}", grid);
-    let mut i = 0;
+    let mut i = 0usize;
     let mut moves = moves.iter().cycle();
     let mut here = grid.keys().filter(|k| k.ends_with('A')).collect_vec();
     loop {
-        // println!("{:?}", here);
-        let mut next = here.clone();
-        for (here, next) in here.iter().zip(next.iter_mut()) {
+        let m = moves.next().expect("move");
+        for here in here.iter_mut() {
             let (l, r) = grid.get(*here).expect("here");
-            let m = moves.next().expect("move");
-            *next = if *m { r } else { l };
+            *here = if *m { r } else { l };
         }
-        here = next;
         i += 1;
-        if i % 100_000 == 0 {
+        if i % (1024 * 1024) == 0 {
             println!("{i} {:?}", here);
         }
         if here.iter().all(|k| k.ends_with('Z')) {
