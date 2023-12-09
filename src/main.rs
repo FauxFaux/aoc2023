@@ -6,9 +6,10 @@ mod d05;
 mod d06;
 mod d07;
 mod d08;
+mod d09;
 
 fn main() {
-    match 8 {
+    match 9 {
         1 => d01::solve(),
         2 => d02::solve(),
         3 => d03::solve(),
@@ -17,6 +18,7 @@ fn main() {
         6 => d06::solve(),
         7 => d07::solve(),
         8 => d08::solve(),
+        9 => d09::solve(),
         _ => unreachable!(),
     }
 }
