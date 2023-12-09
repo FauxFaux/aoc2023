@@ -34,10 +34,17 @@ pub fn solve() {
     let sum = stacks
         .iter()
         .map(|stack| {
-            stack
+            let mut inits = stack
                 .iter()
-                .map(|x| *x.last().expect("non-empty"))
-                .sum::<i64>()
+                .rev()
+                .map(|s| s.first().expect("non-empty"))
+                .copied()
+                .collect_vec();
+            let mut prev = 0;
+            for i in inits {
+                prev = i - prev;
+            }
+            prev
         })
         .sum::<i64>();
 
