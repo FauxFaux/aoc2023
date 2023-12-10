@@ -48,6 +48,7 @@ impl Compass {
 }
 
 impl Dir {
+    #[allow(dead_code)]
     fn regular(&self) -> bool {
         use Dir::*;
         matches!(self, NS | WE | NE | NW | SW | SE)
@@ -232,8 +233,8 @@ pub fn solve() {
         }
     }
 
-    for (y, row) in expanded.iter().enumerate() {
-        for (x, &v) in row.iter().enumerate() {
+    for (_y, row) in expanded.iter().enumerate() {
+        for (_x, &v) in row.iter().enumerate() {
             print!("{}", if v { "X" } else { "." });
         }
         println!();
@@ -288,8 +289,8 @@ pub fn solve() {
             }
 
             println!("{} {}", sx, sy);
-            for (y, row) in visited.iter().enumerate() {
-                for (x, &v) in row.iter().enumerate() {
+            for (_y, row) in visited.iter().enumerate() {
+                for (_x, &v) in row.iter().enumerate() {
                     if v {
                         print!("X");
                     } else {
@@ -302,7 +303,6 @@ pub fn solve() {
             terminuses += 1;
             // print!("{} ", if wall((sy, sx)) { "X" } else { "." });
         }
-        println!();
     }
 
     println!("terminuses: {}", terminuses);

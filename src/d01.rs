@@ -34,7 +34,7 @@ pub fn solve() {
             let ld = |s: &str| {
                 lookup
                     .iter()
-                    .filter_map(|(n, _)| s.rfind(|c: char| c.is_ascii_digit()))
+                    .filter_map(|(_n, _)| s.rfind(|c: char| c.is_ascii_digit()))
                     .max()
             };
 

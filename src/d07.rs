@@ -20,7 +20,7 @@ pub fn solve() {
         })
         .collect_vec();
 
-    gs.sort_by(|(l, pl), (r, pr)| {
+    gs.sort_by(|(l, _pl), (r, _pr)| {
         fn hr(h: &[i64]) -> i32 {
             let c = h.iter().counts();
             let hc = c.values().copied().sorted().collect_vec();
@@ -71,7 +71,6 @@ pub fn solve() {
 
             best
         }
-
 
         let hrl = hrw(&l);
         let hrc = hrw(&r);

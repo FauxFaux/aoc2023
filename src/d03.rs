@@ -9,9 +9,6 @@ pub fn solve() {
         .map(|line| line.bytes().collect_vec())
         .collect_vec();
 
-    let w = g[0].len();
-    let h = g.len();
-
     let mut nums = Vec::new();
     let mut syms = Vec::new();
     let mut adj = HashMap::new();
@@ -35,8 +32,6 @@ pub fn solve() {
             syms.push((s, y));
         }
     }
-
-    let mut sum = 0;
 
     for (n, xs, y) in &nums {
         let lx = xs.start.saturating_sub(1);

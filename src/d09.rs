@@ -34,7 +34,7 @@ pub fn solve() {
     let sum = stacks
         .iter()
         .map(|stack| {
-            let mut inits = stack
+            let inits = stack
                 .iter()
                 .rev()
                 .map(|s| s.first().expect("non-empty"))

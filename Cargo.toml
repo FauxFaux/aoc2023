@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 bit-set = "0.5"
-itertools = "0.10"
+itertools = "0.12"
 maplit = "1"
 num-traits = "0.2"
 num-integer = "0.1"
