@@ -173,6 +173,71 @@ pub fn solve() {
 
     println!("grid: {grid:#?}, dists: {dists:?}, dist: {dist}");
     println!("{}", (dist - 1) / 2);
+
+    let wall = |(x, y): (i64, i64)| {
+        x < 0 || y < 0 || y >= h as i64 || x >= w as i64 || dists[uz(y)][uz(x)] != 0
+    };
+
+    for sy in 0..(h as i64) {
+        for sx in 0..(w as i64) {
+            print!("{} ", if wall((sx, sy)) { "X" } else { "." });
+        }
+        println!();
+    }
+
+    for sy in 1..(h as i64 - 1) {
+        'by_x: for sx in 1..(w as i64 - 1) {
+            if wall((sx, sy)) {
+                continue;
+            }
+            let mut visited = vec![vec![false; w]; h];
+            let mut nexts = Vec::new();
+            nexts.push((sx, sy));
+            while !nexts.is_empty() {
+                let nows = nexts.clone();
+                nexts.clear();
+                for (hx, hy) in nows {
+                    if hx == 0 || hy == 0 || hx == w as i64 - 1 || hy == h as i64 - 1 {
+                        continue 'by_x;
+                    }
+                    if visited[uz(hy)][uz(hx)] {
+                        continue;
+                    }
+                    visited[uz(hy)][uz(hx)] = true;
+                    for (dx, dy) in [
+                        (0, -1),
+                        (1, 0),
+                        (0, 1),
+                        (-1, 0),
+                        (-1, -1),
+                        (1, -1),
+                        (1, 1),
+                        (-1, 1),
+                    ] {
+                        let (nx, ny) = (hx + dx, hy + dy);
+                        if wall((nx, ny)) {
+                            continue;
+                        }
+                        nexts.push((nx, ny));
+                    }
+                }
+            }
+
+            println!("{} {}", sx, sy);
+            for (y, row) in visited.iter().enumerate() {
+                for (x, &v) in row.iter().enumerate() {
+                    if v {
+                        print!("X");
+                    } else {
+                        print!(" ");
+                    }
+                }
+                println!();
+            }
+            // print!("{} ", if wall((sy, sx)) { "X" } else { "." });
+        }
+        println!();
+    }
 }
 
 fn uz(v: i64) -> usize {
