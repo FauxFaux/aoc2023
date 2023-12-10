@@ -86,6 +86,42 @@ impl Dir {
             other => unreachable!("{other:?}"),
         }
     }
+
+    #[rustfmt::skip]
+    fn expand(self) -> [i64; 9] {
+        use Dir::*;
+        match self {
+            NS => [
+                0, 1, 0,
+                0, 1, 0,
+                0, 1, 0],
+            WE => [
+                0, 0, 0,
+                1, 1, 1,
+                0, 0, 0],
+            NE => [
+                0, 1, 0,
+                0, 1, 1,
+                0, 0, 0],
+            NW => [
+                0, 1, 0,
+                1, 1, 0,
+                0, 0, 0],
+            SW => [
+                0, 0, 0,
+                1, 1, 0,
+                0, 1, 0],
+            SE => [
+                0, 0, 0,
+                0, 1, 1,
+                0, 1, 0],
+            G => [
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0],
+            other => unreachable!("{other:?}"),
+        }
+    }
 }
 
 pub fn solve() {
@@ -174,30 +210,58 @@ pub fn solve() {
     println!("grid: {grid:#?}, dists: {dists:?}, dist: {dist}");
     println!("{}", (dist - 1) / 2);
 
-    let wall = |(x, y): (i64, i64)| {
-        x < 0 || y < 0 || y >= h as i64 || x >= w as i64 || dists[uz(y)][uz(x)] != 0
-    };
+    let mut grid = grid;
+    grid[uz(sy)][uz(sx)] = start_tile;
+    for y in 0..h {
+        for x in 0..w {
+            if dists[y][x] == 0 {
+                grid[y][x] = G;
+            }
+        }
+    }
+    let mut expanded = vec![vec![false; w * 3]; h * 3];
+    for (y, row) in grid.iter().enumerate() {
+        for (x, &d) in row.iter().enumerate() {
+            let (x, y) = (x as i64, y as i64);
+            let (x, y) = (x * 3, y * 3);
+            let exp = d.expand();
+            for i in 0..9 {
+                let (dx, dy) = (i % 3, i / 3);
+                expanded[uz(y + dy)][uz(x + dx)] = exp[uz(i)] == 1;
+            }
+        }
+    }
 
-    for sy in 0..(h as i64) {
-        for sx in 0..(w as i64) {
-            print!("{} ", if wall((sx, sy)) { "X" } else { "." });
+    for (y, row) in expanded.iter().enumerate() {
+        for (x, &v) in row.iter().enumerate() {
+            print!("{}", if v { "X" } else { "." });
         }
         println!();
     }
 
-    for sy in 1..(h as i64 - 1) {
-        'by_x: for sx in 1..(w as i64 - 1) {
+    let eh = h * 3;
+    let ew = w * 3;
+
+    let wall = |(x, y): (i64, i64)| {
+        x < 0 || y < 0 || y >= eh as i64 || x >= ew as i64 || expanded[uz(y)][uz(x)]
+    };
+
+    let mut terminuses = 0;
+
+    for osy in 1..(h as i64 - 1) {
+        'by_x: for osx in 1..(w as i64 - 1) {
+            let (sx, sy) = (osx * 3 + 1, osy * 3 + 1);
             if wall((sx, sy)) {
                 continue;
             }
-            let mut visited = vec![vec![false; w]; h];
+            let mut visited = vec![vec![false; ew]; eh];
             let mut nexts = Vec::new();
             nexts.push((sx, sy));
             while !nexts.is_empty() {
                 let nows = nexts.clone();
                 nexts.clear();
                 for (hx, hy) in nows {
-                    if hx == 0 || hy == 0 || hx == w as i64 - 1 || hy == h as i64 - 1 {
+                    if hx == 0 || hy == 0 || hx == ew as i64 - 1 || hy == eh as i64 - 1 {
                         continue 'by_x;
                     }
                     if visited[uz(hy)][uz(hx)] {
@@ -229,15 +293,19 @@ pub fn solve() {
                     if v {
                         print!("X");
                     } else {
-                        print!(" ");
+                        print!(".");
                     }
                 }
                 println!();
             }
+
+            terminuses += 1;
             // print!("{} ", if wall((sy, sx)) { "X" } else { "." });
         }
         println!();
     }
+
+    println!("terminuses: {}", terminuses);
 }
 
 fn uz(v: i64) -> usize {
