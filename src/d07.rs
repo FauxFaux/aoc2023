@@ -11,7 +11,7 @@ pub fn solve() {
                     'A' => 14,
                     'K' => 13,
                     'Q' => 12,
-                    'J' => 11,
+                    'J' => 0,
                     'T' => 10,
                     _ => c.to_digit(10).expect("digit") as i64,
                 })
@@ -21,18 +21,10 @@ pub fn solve() {
         .collect_vec();
 
     gs.sort_by(|(l, pl), (r, pr)| {
-        let cl = l.iter().counts();
-        let cr = r.iter().counts();
+        fn hr(h: &[i64]) -> i32 {
+            let c = h.iter().counts();
+            let hc = c.values().copied().sorted().collect_vec();
 
-        let clm = *cl.values().max().expect("max");
-        let crm = *cr.values().max().expect("max");
-
-        // if clm != crm && clm > 3 {
-        //     println!("{l:?} {r:?} max: {clm} {crm}");
-        //     return clm.cmp(&crm);
-        // }
-
-        let hr = |hc: &[usize]| {
             if hc == &[5] {
                 return 6;
             }
@@ -51,16 +43,40 @@ pub fn solve() {
             if hc == &[1, 1, 1, 2] {
                 return 1;
             }
-            println!("non-hand: {hc:?}");
             0
-        };
+        }
 
-        let ccl = cl.values().copied().sorted().collect_vec();
-        let ccr = cr.values().copied().sorted().collect_vec();
+        fn hrw(h: &[i64]) -> i32 {
+            let mut wilds = h
+                .iter()
+                .enumerate()
+                .filter_map(|(i, p)| (*p == 0).then_some(i))
+                .collect_vec();
+            if wilds.is_empty() {
+                return hr(h);
+            }
 
-        let hrl = hr(&ccl);
-        let hrc = hr(&ccr);
-        println!("{l:?} {r:?} {hrl} {hrc} {ccl:?} {ccr:?}");
+            let alts = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14];
+
+            let init = wilds.pop().expect("checked");
+            let mut best = 0;
+            for a in alts {
+                let mut h = h.to_vec();
+                h[init] = a;
+                let u = hrw(&h);
+                if u > best {
+                    best = u;
+                }
+            }
+
+            best
+        }
+
+
+        let hrl = hrw(&l);
+        let hrc = hrw(&r);
+
+        println!("{l:?} {r:?} {hrl} {hrc}");
         let lr = hrl.cmp(&hrc);
         if lr != std::cmp::Ordering::Equal {
             return lr;
