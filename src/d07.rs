@@ -1,6 +1,4 @@
 use itertools::Itertools;
-use maplit::hashset;
-use std::collections::HashSet;
 
 pub fn solve() {
     let mut gs = include_str!("d07.txt")
