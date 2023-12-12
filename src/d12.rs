@@ -19,13 +19,12 @@ pub fn solve() {
     let mut score = 0usize;
 
     for (gs, ns) in games {
-        let ags = vec![gs.clone()]
-            .iter()
-            .cycle()
-            .take(5)
-            .flatten()
-            .copied()
-            .collect_vec();
+        let mut ags = Vec::new();
+        for _ in 0..5 {
+            ags.extend_from_slice(&gs);
+            ags.push('?');
+        }
+        ags.pop();
         let ans = vec![ns.clone()]
             .iter()
             .cycle()
@@ -35,7 +34,8 @@ pub fn solve() {
             .collect_vec();
         // println!("{gs:?} {ags:?}");
         let s = place(&ags, &ans);
-        println!("{}", s);
+        println!("{} {gs:?}", s);
+        // break;
         score += s;
     }
 
@@ -62,18 +62,19 @@ fn place(tpl: &[char], to_place: &[usize]) -> usize {
         return run;
     }
 
-    // println!("{tpl:?} {to_place:?}");
-    if tpl.len() >= space_needed {
-        // println!("out of space: {space_needed} {run}");
-        let placing = to_place[0];
-        let at_end = tpl.len() == placing;
-        if tpl[..placing].iter().all(|c| *c != '.') && (at_end || tpl[placing] != '#') {
-            if at_end {
-                run += 1;
-            } else {
-                run += place(&tpl[placing + 1..], &to_place[1..]);
-            }
-        }
+    // println!("{} {to_place:?}", tpl.iter().collect::<String>());
+
+    let placing = to_place[0];
+    let at_end = tpl.len() == placing;
+    let is_match = tpl[..placing].iter().all(|c| *c != '.') && (at_end || tpl[placing] != '#');
+    if !is_match {
+        return run;
+    }
+
+    if at_end {
+        run += place(&[], &to_place[1..]);
+    } else {
+        run += place(&tpl[placing + 1..], &to_place[1..]);
     }
 
     // println!("placed a {placing}: {run}");
