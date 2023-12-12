@@ -1,4 +1,4 @@
-use itertools::{repeat_n, Itertools};
+use itertools::Itertools;
 
 pub fn solve() {
     let games = include_str!("d12.txt")
@@ -19,39 +19,63 @@ pub fn solve() {
     let mut score = 0usize;
 
     for (gs, ns) in games {
-        let blanks = gs
+        let ags = vec![gs.clone()]
             .iter()
-            .enumerate()
-            .filter_map(|(p, c)| (*c == '?').then_some(p))
+            .cycle()
+            .take(5)
+            .flatten()
+            .copied()
             .collect_vec();
-        let mut base = gs.iter().map(|c| *c == '#').collect_vec();
-
-        for repl in repeat_n([false, true], blanks.len()).multi_cartesian_product()
-        // .into_iter()
-        // .permutations(blanks.len())
-        {
-            // println!("{repl:?}");
-            for (r, p) in repl.into_iter().zip(blanks.iter().copied()) {
-                base[p] = r;
-            }
-
-            let hits = base
-                .iter()
-                .group_by(|b| **b)
-                .into_iter()
-                .filter_map(|(b, l)| b.then_some(l.count()))
-                .collect_vec();
-            if hits == ns {
-                score += 1;
-            }
-
-            let s = base
-                .iter()
-                .map(|b| if *b { '#' } else { '.' })
-                .collect::<String>();
-            // println!("{s}")
-        }
+        let ans = vec![ns.clone()]
+            .iter()
+            .cycle()
+            .take(5)
+            .flatten()
+            .copied()
+            .collect_vec();
+        // println!("{gs:?} {ags:?}");
+        let s = place(&ags, &ans);
+        println!("{}", s);
+        score += s;
     }
 
     println!("{score}");
+}
+
+fn place(tpl: &[char], to_place: &[usize]) -> usize {
+    if tpl.is_empty() {
+        return if to_place.is_empty() { 1 } else { 0 };
+    }
+
+    let mut run = 0;
+    if tpl[0] != '#' {
+        run += place(&tpl[1..], to_place)
+    };
+
+    if to_place.is_empty() {
+        return run;
+    }
+
+    let space_needed = to_place.iter().sum::<usize>() + to_place.len() - 1;
+
+    if tpl.len() < space_needed {
+        return run;
+    }
+
+    // println!("{tpl:?} {to_place:?}");
+    if tpl.len() >= space_needed {
+        // println!("out of space: {space_needed} {run}");
+        let placing = to_place[0];
+        let at_end = tpl.len() == placing;
+        if tpl[..placing].iter().all(|c| *c != '.') && (at_end || tpl[placing] != '#') {
+            if at_end {
+                run += 1;
+            } else {
+                run += place(&tpl[placing + 1..], &to_place[1..]);
+            }
+        }
+    }
+
+    // println!("placed a {placing}: {run}");
+    return run;
 }
