@@ -25,7 +25,7 @@ pub fn solve() {
         }
     }
 
-    let g = 1000000-1;
+    let g = 1000000 - 1;
 
     let mut ng = coords.clone();
     for gy in nr.iter().rev() {
