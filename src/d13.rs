@@ -12,7 +12,6 @@ pub fn solve() {
 
     let mut score = 0;
     'game: for game in games {
-        let mut gs = 0;
         let h = game.len();
         let w = game[0].len();
 
@@ -24,29 +23,38 @@ pub fn solve() {
         }
         println!();
 
-        for y in 0..h - 1 {
-            if (0..=y).all(|d| {
-                let o = d + 1;
-                y + o >= h || y < d || game[y - d] == game[y + o]
-            }) {
-                score += 100 * (y + 1);
-                continue 'game;
+        let search = |game: &Vec<Vec<bool>>| {
+            for y in 0..h - 1 {
+                if (0..=y).all(|d| {
+                    let o = d + 1;
+                    y + o >= h || y < d || game[y - d] == game[y + o]
+                }) {
+                    return (0, y + 1);
+                }
             }
-        }
 
-        for x in 0..w - 1 {
-            if (0..=x).all(|d| {
-                let o = d + 1;
-                x + o >= w || x < d || (0..h).all(|y| game[y][x - d] == game[y][x + o])
-            }) {
-                score += x + 1;
-                continue 'game;
+            for x in 0..w - 1 {
+                if (0..=x).all(|d| {
+                    let o = d + 1;
+                    x + o >= w || x < d || (0..h).all(|y| game[y][x - d] == game[y][x + o])
+                }) {
+                    return (x + 1, 0);
+                }
             }
-        }
 
-        panic!("no solution");
+            return (0, 0);
+        };
+
+        let (x, y) = search(&game);
+        if x == 0 && y == 0 {
+            panic!("no solution");
+        }
+        if x == 0 {
+            score += y * 100;
+        } else {
+            score += x;
+        }
     }
 
-    // 95000 too high
     println!("{}", score);
 }
